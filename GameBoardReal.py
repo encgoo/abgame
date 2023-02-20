@@ -1,5 +1,5 @@
+# copyright: Yongjian Feng
 import math
-
 import pygame
 import sys
 from pygame.locals import *

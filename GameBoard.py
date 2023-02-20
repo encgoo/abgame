@@ -1,3 +1,4 @@
+# copyright: Yongjian Feng
 from GameBoardReal import GameBoardReal
 from Data import Data
 
