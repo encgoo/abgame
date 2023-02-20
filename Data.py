@@ -10,7 +10,7 @@ class Data:
         self.v_x = 0
         self.v_y = 0
 
-        self.vir_x = 0
+        self.vir_x = -1
         self.vir_y = 0
 
         # radius

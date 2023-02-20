@@ -1,3 +1,5 @@
+import math
+
 import pygame
 import sys
 from pygame.locals import *
@@ -12,18 +14,27 @@ class GameBoardReal:
     STATE_EXPOSE = 60
     STATE_PENDING = 0
 
+    start_button_x = 10
+    start_button_y = 10
+    start_button_w = 120
+    start_button_h = 20
+
     def __init__(self, gb_config):
         self.gbConfig = gb_config
         self.win = None
         self.fpsClock = pygame.time.Clock()
         self.counter = self.STATE_PENDING
+        self.gfont = None
 
     def init(self):
         pygame.display.set_caption(self.gbConfig.title)
         self.win = pygame.display.set_mode((self.gbConfig.win_w, self.gbConfig.win_h))
+        pygame.font.init()
+        self.gfont = pygame.font.SysFont('Comic Sans MS', 20)
 
     def set_flying(self):
         self.counter = self.STATE_FLYING
+
     def set_expose(self):
         self.counter = self.STATE_EXPOSE
 
@@ -31,12 +42,35 @@ class GameBoardReal:
         # get into an endless loop
         done = False
         while not done:
-
             # handle events
+            mouse = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == QUIT:
+                    print("Exit")
                     pygame.quit()
                     sys.exit()
+
+                if event.type == MOUSEBUTTONDOWN:
+                    # user click. check if inside button area
+                    if self.start_button_x <= mouse[0] <= self.start_button_x + self.start_button_w and \
+                       self.start_button_y <= mouse[1] <= self.start_button_y + self.start_button_h:
+                        if self.gbConfig.updater and self.counter == self.STATE_PENDING:
+                            print('New Game')
+                            self.gbConfig.updater.start_new_game()
+                            continue
+                    else:
+                        dist = GameBoardReal.distance(mouse, (0, self.gbConfig.data.ground_y))
+                        print(dist)
+                        if mouse[1] < self.gbConfig.data.ground_y and dist < 100:
+                            print('Launching')
+                            # launching, update
+                            # let the updater compute the good scale
+                            self.gbConfig.data.v_x = mouse[0]/100
+                            self.gbConfig.data.v_y = mouse[1]/100
+                            self.gbConfig.data.n_x = mouse[0]
+                            self.gbConfig.data.n_y = mouse[1]
+                            self.set_flying()
+                        continue
 
             # call the updater to do some update
             if self.gbConfig.updater:
@@ -64,6 +98,10 @@ class GameBoardReal:
     def draw_background(self):
         self.win.fill(self.gbConfig.bg_color)
 
+        # draw the start button
+        self.draw_start_button()
+        # draw launch
+        self.draw_launch_area()
         # draw the horizontal line
         y = self.gbConfig.data.ground_y
         pygame.draw.line(self.win, (190, 190, 190), (0, y), (self.gbConfig.data.w, y), 2)
@@ -75,6 +113,17 @@ class GameBoardReal:
         self.draw_tree(x, 200, 100)
         x = self.gbConfig.data.w*0.95
         self.draw_tree(x, 150, 80)
+
+    def draw_launch_area(self):
+        sz = 100
+        pygame.draw.arc(self.win, (0, 0, 0), [-sz/2, self.gbConfig.data.ground_y-sz/2, sz, sz], 0, pi/2, 3)
+
+    def draw_start_button(self):
+        # draw start button
+        pygame.draw.rect(self.win, (0, 200, 0),
+                         [self.start_button_x, self.start_button_y, self.start_button_w, self.start_button_h])
+        text = self.gfont.render("Start New Game", False, (0, 0, 0))
+        self.win.blit(text, (self.start_button_x, self.start_button_y))
 
     def draw_tree(self, x, h=100, w=60):
         # always start from ground_y
@@ -121,7 +170,6 @@ class GameBoardReal:
         x1 = self.gbConfig.data.n_x - 3
         x2 = self.gbConfig.data.n_x + 2
         pygame.draw.line(self.win, (0, 0, 0), (x1, y), (x2, y), 1)
-
 
     def draw_virus(self, scale=1, color_scale=1):
 
@@ -174,4 +222,11 @@ class GameBoardReal:
                 if self.gbConfig.data.n_y < self.gbConfig.data.ground_y:
                     if fabs(self.gbConfig.data.n_x - self.gbConfig.data.vir_x) < self.gbConfig.data.vir_r:
                         return self.STATE_EXPOSE
+            elif self.gbConfig.data.n_y > self.gbConfig.data.ground_y or self.gbConfig.data.n_x > self.gbConfig.win_w:
+                self.gbConfig.data.n_x = -1
+                return self.STATE_PENDING
         return counter
+
+    @staticmethod
+    def distance(p1, p2):
+        return math.sqrt((p1[0]-p2[0])**2 + (p1[1] - p2[1])**2)
