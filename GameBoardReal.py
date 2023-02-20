@@ -117,6 +117,11 @@ class GameBoardReal:
         y1 = y - 8
         pygame.draw.line(self.win, (0, 0, 0), (x, y), (x, y1), 4)
 
+        y = y1
+        x1 = self.gbConfig.data.n_x - 3
+        x2 = self.gbConfig.data.n_x + 2
+        pygame.draw.line(self.win, (0, 0, 0), (x1, y), (x2, y), 1)
+
 
     def draw_virus(self, scale=1, color_scale=1):
 
