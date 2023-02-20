@@ -9,7 +9,12 @@ class AbGame:
         self.gb.updater = self
         self.gb.init()
 
+        # set virus pos
         self.gb.data.vir_x = self.gb.data.w / 2
+        # set needle pos
+        self.gb.data.n_x = self.gb.data.w / 2
+        self.gb.data.n_y = self.gb.data.ground_y - 100
+        self.gb.set_flying()
 
         self.gb.start()
 

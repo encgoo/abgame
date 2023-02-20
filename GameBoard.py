@@ -30,6 +30,11 @@ class GameBoard:
     def start(self):
         self.gb.start()
 
+    def set_flying(self):
+        self.gb.set_flying()
+
+    def set_expose(self):
+        self.gb.set_expose()
 
 if __name__ == '__main__':
     gb = GameBoard(False)
