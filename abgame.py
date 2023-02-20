@@ -3,7 +3,7 @@ from GameBoard import GameBoard
 class AbGame:
 
     def __init__(self):
-        self.gb = GameBoard(False)
+        self.gb = GameBoard()
 
     def run(self):
         self.gb.updater = self

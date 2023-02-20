@@ -1,10 +1,10 @@
-from GameBoardMocked import GameBoardMocked
 from GameBoardReal import GameBoardReal
 from Data import Data
 
+
 class GameBoard:
 
-    def __init__(self, mocked=False):
+    def __init__(self):
         self.win_w = 800
         self.win_h = 600
 
@@ -16,10 +16,7 @@ class GameBoard:
         self.updater = None
         self.data = None
 
-        if mocked:
-            self.gb = GameBoardMocked(self)
-        else:
-            self.gb = GameBoardReal(self)
+        self.gb = GameBoardReal(self)
 
     def init(self):
         # separate this from __init__ so caller can
@@ -36,8 +33,9 @@ class GameBoard:
     def set_expose(self):
         self.gb.set_expose()
 
+
 if __name__ == '__main__':
-    gb = GameBoard(False)
+    gb = GameBoard()
     gb.init()
     gb.start()
 
